@@ -1,0 +1,104 @@
+#!/bin/bash
+
+print_help() {
+	echo "Help Message func"
+}
+
+list_tick() {
+	IFS=$'\n'
+	for line in $(cat $file)
+		do
+			echo "$line" | cut -d';' -f 2
+		done
+}
+
+profit() {
+	echo "Profit func"
+}
+
+pos() {
+	echo "Pos func"
+}
+
+last_price() {
+	echo "Last price func"
+}
+
+hist_ord() {
+	echo "Hist Ord Func"
+}
+
+graph_pos() {
+	echo "Graph pos func"
+}
+
+file="${@: -1}"
+#echo "$file"
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-h) #TODO
+		print_help
+		exit 0
+		;;
+	--help) #TODO
+		print_help
+		exit 0
+		;;
+	-w) #TODO
+		width="$2"
+		echo "Width is $width"
+		shift
+		shift
+		;;
+	-a) #TODO
+		after="DATETIME - after"
+		echo "$after"
+		shift
+		;;
+	-b) #TODO
+		before="DATETIME - before"
+		echo "$before"
+		shift
+		;;
+	-t) #REPAIR (когда используем V вылезает еще и NVDA)
+		ticker="$2"
+		IFS=$'\n'
+		for line in $(cat $file)
+			do
+				grep $ticker $file
+				break
+			done
+		shift
+		shift
+		;;
+	list-tick) #ALMOST DONE
+		list_tick
+		shift
+		;;
+	profit) #TODO
+		profit
+		shift
+		;;
+	pos) #TODO
+		pos
+		shift
+		;;
+	last-price) #TODO
+		last_price
+		shift
+		;;
+	hist-ord) #TODO
+		hist_ord
+		shift
+		;;
+	graph-pos) #TODO
+		graph_pos
+		shift
+		;;
+	*)
+		echo "'$*' no such function"
+		shift
+		;;
+	esac
+done
