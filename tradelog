@@ -2,7 +2,7 @@
 export POSIXLY_CORRECT=yes
 export LC_NUMERIC=en_US.UTF-8
 
-print_help() {
+print_help() { #DONE
 	echo "*******************************"
 	echo "VUT FIT 2021/2022 letni semestr"
 	echo "1. projekt IOS"
@@ -26,15 +26,18 @@ print_help() {
 	echo "-a DATETIME-after 	- Display only logs AFTER this time."
 	echo "-b DATETIME-before 	- Display only logs BEFORE this time."
 	echo "-t TICKER 		- Display only this ticker."
-	echo "-w WIDTH 		- Graph settings (width)."#DONE
+	echo "-w WIDTH 		- Graph settings (width)." 
 }
 
-list_tick() {
+#awk -F';' '{print $2}' $file #| grep -o -E '\w+' $file
+#for line in $(cat $file)
+#do
+#	echo "$line" | uniq -d | cut -d';' -f 2 
+#done 
+list_tick() { #repair (not unique)
 	IFS=$'\n'
-	for line in $(cat $file)
-		do
-			echo "$line" | cut -d';' -f 2
-		done #DONE
+	awk -F';' '{print $2}' $file | sort | uniq -d
+	awk -F';' '{print $2}' $file | sort | uniq -u
 }
 
 profit() {
@@ -91,10 +94,10 @@ while [ "$#" -gt 0 ]; do
 		echo "$before"
 		shift
 		;;
-	-t) #REPAIR (когда используем V вылезает еще и NVDA)
+	-t) #REPAIR (когда используем V вылезает еще и NVDA) + just print, not unique
 		ticker="$2"
 		IFS=$'\n'
-		for line in $(cat $file)
+		for line in $file
 			do
 				grep $ticker $file
 				break
@@ -102,7 +105,7 @@ while [ "$#" -gt 0 ]; do
 		shift
 		shift
 		;;
-	list-tick) #ALMOST DONE
+	list-tick) #ALMOST DONE (not unique)
 		list_tick
 		shift
 		;;
