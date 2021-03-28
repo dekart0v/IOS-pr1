@@ -1,7 +1,32 @@
 #!/bin/bash
+export POSIXLY_CORRECT=yes
+export LC_NUMERIC=en_US.UTF-8
 
 print_help() {
-	echo "Help Message func"
+	echo "*******************************"
+	echo "VUT FIT 2021/2022 letni semestr"
+	echo "1. projekt IOS"
+	echo "xiuden00, Iudenkov Ilia"
+	echo "*******************************"
+	echo "Script to analyze logs of stock-market application."
+	echo ""
+	echo "Usage:	tradelog [FILTER] [COMMAND] [LOG1 [LOG2 [...]]]"
+	echo ""
+	echo "	tradelog [-h|--help] for more information"
+	echo ""
+	echo "Available commands:"
+	echo "list-tick	- Display only tickers from log."
+	echo "profit 		- Display profit from closed positions."
+	echo "pos 		- Values of held positions (descending by value). "
+	echo "last-price	- Last known price for each ticker."
+	echo "hist-ord	- Statement of the histogram of the number of transactions according to the ticker."
+	echo "graph-pos	- Statement of graph of values of held positions according to the ticker."
+	echo ""
+	echo "Available filters:"
+	echo "-a DATETIME-after 	- Display only logs AFTER this time."
+	echo "-b DATETIME-before 	- Display only logs BEFORE this time."
+	echo "-t TICKER 		- Display only this ticker."
+	echo "-w WIDTH 		- Graph settings (width)."
 }
 
 list_tick() {
@@ -33,7 +58,6 @@ graph_pos() {
 }
 
 file="${@: -1}"
-#echo "$file"
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
@@ -94,6 +118,9 @@ while [ "$#" -gt 0 ]; do
 		;;
 	graph-pos) #TODO
 		graph_pos
+		shift
+		;;
+	*.log)
 		shift
 		;;
 	*)
