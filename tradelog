@@ -19,14 +19,14 @@ print_help() {
 	echo "profit 		- Display profit from closed positions."
 	echo "pos 		- Values of held positions (descending by value). "
 	echo "last-price	- Last known price for each ticker."
-	echo "hist-ord	- Statement of the histogram of the number of transactions according to the ticker."
+	echo "hist-ord	- Statement of histogram of the number of transactions according to the ticker."
 	echo "graph-pos	- Statement of graph of values of held positions according to the ticker."
 	echo ""
 	echo "Available filters:"
 	echo "-a DATETIME-after 	- Display only logs AFTER this time."
 	echo "-b DATETIME-before 	- Display only logs BEFORE this time."
 	echo "-t TICKER 		- Display only this ticker."
-	echo "-w WIDTH 		- Graph settings (width)."
+	echo "-w WIDTH 		- Graph settings (width)."#DONE
 }
 
 list_tick() {
@@ -34,7 +34,7 @@ list_tick() {
 	for line in $(cat $file)
 		do
 			echo "$line" | cut -d';' -f 2
-		done
+		done #DONE
 }
 
 profit() {
@@ -58,6 +58,12 @@ graph_pos() {
 }
 
 file="${@: -1}"
+if [[ $file !=  *.log* ]]; then
+	echo "Wrong filename."
+	echo "Insert the right one:"
+	read
+	file="${REPLY}"
+fi
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
@@ -120,7 +126,10 @@ while [ "$#" -gt 0 ]; do
 		graph_pos
 		shift
 		;;
-	*.log)
+	sto*.lo*) # if filename is misspelled, "no such func" won't be printed
+		shift
+		;;
+	sto*log.g*)
 		shift
 		;;
 	*)
