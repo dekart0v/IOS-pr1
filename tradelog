@@ -29,6 +29,7 @@ print_help() { #DONE
 	echo "-w WIDTH 		- Graph settings (width)." 
 }
 
+<<<<<<< HEAD
 #awk -F';' '{print $2}' $file #| grep -o -E '\w+' $file
 #for line in $(cat $file)
 #do
@@ -38,6 +39,12 @@ list_tick() { #repair (not unique)
 	IFS=$'\n'
 	awk -F';' '{print $2}' $file | sort | uniq -d
 	awk -F';' '{print $2}' $file | sort | uniq -u
+=======
+list_tick() { #DONE
+	awk -F';' '{print $2}' $file | sort | uniq -d
+	awk -F';' '{print $2}' $file | sort | uniq -u
+
+>>>>>>> Added 'last-price' which is showing every price available for every ticker; added -a but not working at all
 }
 
 profit() {
@@ -48,8 +55,15 @@ pos() {
 	echo "Pos func"
 }
 
+<<<<<<< HEAD
 last_price() {
 	echo "Last price func"
+=======
+last_price() { #work for every price available
+#awk 'BEGIN {max = 0} {if ($6>max) max=$6} END {print max}' ---- no use
+	awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' $file | sort | uniq -u
+	awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' $file | sort | uniq -d
+>>>>>>> Added 'last-price' which is showing every price available for every ticker; added -a but not working at all
 }
 
 hist_ord() {
@@ -84,9 +98,23 @@ while [ "$#" -gt 0 ]; do
 		shift
 		shift
 		;;
+<<<<<<< HEAD
 	-a) #TODO
 		after="DATETIME - after"
 		echo "$after"
+=======
+	-a) #TODO (doesnt work)
+		#after="DATETIME - after"
+		#echo "$after"
+		IFS=$'\n'
+		for line in $file
+		do
+		  time=$(awk -F' ' '{print $1}' $file)
+		  if [[ $2 -lt $time ]]; then
+		    print line
+		  fi
+		done
+>>>>>>> Added 'last-price' which is showing every price available for every ticker; added -a but not working at all
 		shift
 		;;
 	-b) #TODO
@@ -105,7 +133,11 @@ while [ "$#" -gt 0 ]; do
 		shift
 		shift
 		;;
+<<<<<<< HEAD
 	list-tick) #ALMOST DONE (not unique)
+=======
+	list-tick) #DONE
+>>>>>>> Added 'last-price' which is showing every price available for every ticker; added -a but not working at all
 		list_tick
 		shift
 		;;
