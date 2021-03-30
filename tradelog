@@ -1,0 +1,148 @@
+#!/bin/bash
+export POSIXLY_CORRECT=yes
+export LC_NUMERIC=en_US.UTF-8
+
+print_help() { #DONE
+	echo "*******************************"
+	echo "VUT FIT 2021/2022 letni semestr"
+	echo "1. projekt IOS"
+	echo "xiuden00, Iudenkov Ilia"
+	echo "*******************************"
+	echo "Script to analyze logs of stock-market application."
+	echo ""
+	echo "Usage:	tradelog [FILTER] [COMMAND] [LOG1 [LOG2 [...]]]"
+	echo ""
+	echo "	tradelog [-h|--help] for more information"
+	echo ""
+	echo "Available commands:"
+	echo "list-tick	- Display only tickers from log."
+	echo "profit 		- Display profit from closed positions."
+	echo "pos 		- Values of held positions (descending by value). "
+	echo "last-price	- Last known price for each ticker."
+	echo "hist-ord	- Statement of histogram of the number of transactions according to the ticker."
+	echo "graph-pos	- Statement of graph of values of held positions according to the ticker."
+	echo ""
+	echo "Available filters:"
+	echo "-a DATETIME-after 	- Display only logs AFTER this time."
+	echo "-b DATETIME-before 	- Display only logs BEFORE this time."
+	echo "-t TICKER 		- Display only this ticker."
+	echo "-w WIDTH 		- Graph settings (width)." 
+}
+
+list_tick() { #repair (not unique)
+	IFS=$'\n'
+	awk -F';' '{print $2}' $file | sort | uniq -d
+	awk -F';' '{print $2}' $file | sort | uniq -u
+}
+
+profit() {
+	echo "Profit func"
+}
+
+pos() {
+	echo "Pos func"
+}
+
+last_price() {#work for every price available
+#awk 'BEGIN {max = 0} {if ($6>max) max=$6} END {print max}' ---- no use
+	awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' $file | sort | uniq -u
+	awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' $file | sort | uniq -d
+}
+
+hist_ord() {
+	echo "Hist Ord Func"
+}
+
+graph_pos() {
+	echo "Graph pos func"
+}
+
+file="${@: -1}"
+if [[ $file !=  *.log* ]]; then
+	echo "Wrong filename."
+	echo "Insert the right one:"
+	read
+	file="${REPLY}"
+fi
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-h) #TODO
+		print_help
+		exit 0
+		;;
+	--help) #TODO
+		print_help
+		exit 0
+		;;
+	-w) #TODO
+		width="$2"
+		echo "Width is $width"
+		shift
+		shift
+		;;
+	-a) #TODO(doesnt work)
+		#after="DATETIME - after"
+		#echo "$after"
+		IFS=$'\n'
+		for line in $file
+		do
+		  time=$(awk -F' ' '{print $1}' $file)
+		  if [[ $2 -lt $time ]]; then
+		    print line
+		  fi
+		done
+		shift
+		;;
+	-b) #TODO
+		before="DATETIME - before"
+		echo "$before"
+		shift
+		;;
+	-t) #REPAIR (когда используем V вылезает еще и NVDA) + just print, not unique
+		ticker="$2"
+		IFS=$'\n'
+		for line in $file
+			do
+				grep $ticker $file
+				break
+			done
+		shift
+		shift
+		;;
+	list-tick) #ALMOST DONE (not unique)
+		list_tick
+		shift
+		;;
+	profit) #TODO
+		profit
+		shift
+		;;
+	pos) #TODO
+		pos
+		shift
+		;;
+	last-price) #TODO
+		last_price
+		shift
+		;;
+	hist-ord) #TODO
+		hist_ord
+		shift
+		;;
+	graph-pos) #TODO
+		graph_pos
+		shift
+		;;
+	sto*.lo*) # if filename is misspelled, "no such func" won't be printed
+		shift
+		;;
+	sto*log.g*)
+		shift
+		;;
+	*)
+		echo "'$*' no such function"
+		shift
+		;;
+	esac
+done
