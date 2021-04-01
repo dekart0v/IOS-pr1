@@ -31,8 +31,7 @@ print_help() { #DONE
 
 list_tick() { #repair (not unique)
 	IFS=$'\n'
-	awk -F';' '{print $2}' $file | sort | uniq -d
-	awk -F';' '{print $2}' $file | sort | uniq -u
+	awk -F';' '{print $2}' $file | sort | uniq
 }
 
 profit() {
@@ -43,10 +42,8 @@ pos() {
 	echo "Pos func"
 }
 
-last_price() {#work for every price available
-#awk 'BEGIN {max = 0} {if ($6>max) max=$6} END {print max}' ---- no use
-	awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' $file | sort | uniq -u
-	awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' $file | sort | uniq -d
+last_price() { #DONE (needs formatting)
+  sort -r $file | awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' | sort -u -k 1,1 | uniq
 }
 
 hist_ord() {
@@ -110,7 +107,7 @@ while [ "$#" -gt 0 ]; do
 		shift
 		shift
 		;;
-	list-tick) #ALMOST DONE (not unique)
+	list-tick) #DONE
 		list_tick
 		shift
 		;;
@@ -122,7 +119,7 @@ while [ "$#" -gt 0 ]; do
 		pos
 		shift
 		;;
-	last-price) #TODO
+	last-price) #DONE
 		last_price
 		shift
 		;;
