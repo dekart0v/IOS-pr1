@@ -57,26 +57,25 @@ graph_pos() {
 file="${@: -1}"
 if [[ $file !=  *.log* ]]; then
 	echo "Wrong filename."
-	echo "Insert the right one:"
-	read
-	file="${REPLY}"
+	#echo "Insert the right one:"
+	#read
+	#file="${REPLY}"
 fi
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
-	-h) #TODO
+	-h) #DONE
 		print_help
 		exit 0
 		;;
-	--help) #TODO
+	--help) #DONE
 		print_help
 		exit 0
 		;;
 	-w) #TODO
 		width="$2"
 		echo "Width is $width"
-		shift
-		shift
+		shift 2
 		;;
 	-a) #TODO(doesnt work)
 		#after="DATETIME - after"
@@ -97,21 +96,24 @@ while [ "$#" -gt 0 ]; do
 		shift
 		;;
 	-t) #REPAIR (когда используем V вылезает еще и NVDA) + just print, not unique
-		ticker="$2"
 		IFS=$'\n'
 		for line in $file
-			do
-				grep $ticker $file
-				break
-			done
-		shift
-		shift
+		do
+		    if [[ "$3" == "profit" ]] # $1=-t $2=TSLA $3=profit
+		    then
+          profit
+          shift 3
+        else
+          grep $2 $file
+          shift 2
+        fi
+		done
 		;;
 	list-tick) #DONE
 		list_tick
 		shift
 		;;
-	profit) #TODO
+	profit) #TODO (buy*price - sell*price = profit)
 		profit
 		shift
 		;;
@@ -131,14 +133,15 @@ while [ "$#" -gt 0 ]; do
 		graph_pos
 		shift
 		;;
-	sto*.lo*) # if filename is misspelled, "no such func" won't be printed
+	*.log) # if filename is misspelled, "no such func" won't be printed
 		shift
 		;;
-	sto*log.g*)
+	*log.g*)
+	  echo "Not working with archives yet"
 		shift
 		;;
 	*)
-		echo "'$*' no such function"
+	  echo "'$*' no such function"
 		shift
 		;;
 	esac
