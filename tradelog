@@ -35,8 +35,9 @@ list_tick() { #repair (not unique)
 }
 
 profit() { #TODO (buy*price - sell*price = profit)
-	echo "Profit func"
-	awk -F';' '{print $2}' $file
+	buy=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc)
+	sell=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc)
+	echo "$sell $buy" | paste -sd+ | bc
 }
 
 pos() {
@@ -55,8 +56,8 @@ graph_pos() {
 	echo "Graph pos func"
 }
 
-file="${@: -1}"
-if [[ $file !=  *.log* ]]; then
+file="${@: -1}" #file = last arg
+if [[ $file !=  *.log* ]]; then # if <filename> is not ended with .log, then error appears
 	echo "Wrong filename."
 fi
 
