@@ -2,7 +2,7 @@
 export POSIXLY_CORRECT=yes
 export LC_NUMERIC=en_US.UTF-8
 
-print_help() { #DONE
+print_help() {
 	echo "*******************************"
 	echo "VUT FIT 2021/2022 letni semestr"
 	echo "1. projekt IOS"
@@ -29,22 +29,29 @@ print_help() { #DONE
 	echo "-w WIDTH 		- Graph settings (width)." 
 }
 
-list_tick() { #repair (not unique)
+list_tick() {
 	IFS=$'\n'
 	awk -F';' '{print $2}' $file | sort | uniq
 }
 
-profit() { #TODO (buy*price - sell*price = profit)
-	buy=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc)
-	sell=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc)
-	echo "$sell $buy" | paste -sd+ | bc
+profit() { # (need -t support)
+  if [[ "$1" == "-t" ]]
+  then
+    buy=$(awk /"$2"/ $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc)
+    sell=$(awk /"$2"/ $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc)
+    echo "$sell $buy" | paste -sd+ | bc
+  else
+    buy=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc)
+    sell=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc)
+    echo "$sell $buy" | paste -sd+ | bc
+  fi
 }
 
 pos() {
 	echo "Pos func"
 }
 
-last_price() { #DONE
+last_price() {
   sort -r $file | awk -F';' '{printf "%-10s:%8s\n", $2, $4}' | sort -u -k 1,1 | uniq
 }
 
@@ -56,18 +63,18 @@ graph_pos() {
 	echo "Graph pos func"
 }
 
-file="${@: -1}" #file = last arg
+file="${*: -1}" #file = last arg (probably need to use @ instead if *)
 if [[ $file !=  *.log* ]]; then # if <filename> is not ended with .log, then error appears
 	echo "Wrong filename."
 fi
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
-	-h) #DONE
+	-h)
 		print_help
 		exit 0
 		;;
-	--help) #DONE
+	--help)
 		print_help
 		exit 0
 		;;
@@ -76,17 +83,9 @@ while [ "$#" -gt 0 ]; do
 		echo "Width is $width"
 		shift 2
 		;;
-	-a) #TODO(doesnt work)
+	-a) #TODO
 		#after="DATETIME - after"
-		#echo "$after"
-		IFS=$'\n'
-		for line in $file
-		do
-		  time=$(awk -F' ' '{print $1}' $file)
-		  if [[ $2 -lt $time ]]; then
-		    print line
-		  fi
-		done
+		echo "$after"
 		shift
 		;;
 	-b) #TODO
@@ -100,27 +99,27 @@ while [ "$#" -gt 0 ]; do
 		do
 		    if [[ "$3" == "profit" ]] # $1=-t $2=TSLA $3=profit
 		    then
-          profit
+          profit "$@" #filtered profit
           shift 3
         else
-          grep $2 $file # заменить на авк
+          awk /"$2"/ $file # заменить на авк
           shift 2
         fi
 		done
 		;;
-	list-tick) #DONE
+	list-tick)
 		list_tick
 		shift
 		;;
-	profit) #TODO (buy*price - sell*price = profit)
-		profit
+	profit) # unfiltered profit
+	  profit "$@"
 		shift
 		;;
 	pos) #TODO
 		pos
 		shift
 		;;
-	last-price) #DONE
+	last-price)
 		last_price
 		shift
 		;;
@@ -135,11 +134,11 @@ while [ "$#" -gt 0 ]; do
 	*.log) # if filename is misspelled, "no such func" won't be printed
 		shift
 		;;
-	*log.g*)
+	*log.g*) #TODO
 	  echo "Not working with archives yet"
 		shift
 		;;
-	*)
+	*) #TODO
 	  echo "'$*' no such function"
 		shift
 		;;
