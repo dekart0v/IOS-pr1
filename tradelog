@@ -34,16 +34,17 @@ list_tick() { #repair (not unique)
 	awk -F';' '{print $2}' $file | sort | uniq
 }
 
-profit() {
+profit() { #TODO (buy*price - sell*price = profit)
 	echo "Profit func"
+	awk -F';' '{print $2}' $file
 }
 
 pos() {
 	echo "Pos func"
 }
 
-last_price() { #DONE (needs formatting)
-  sort -r $file | awk -F';' '{printf $2;} {printf "     ";} {printf $4;} {print "";}' | sort -u -k 1,1 | uniq
+last_price() { #DONE
+  sort -r $file | awk -F';' '{printf "%-10s:%8s\n", $2, $4}' | sort -u -k 1,1 | uniq
 }
 
 hist_ord() {
@@ -57,9 +58,6 @@ graph_pos() {
 file="${@: -1}"
 if [[ $file !=  *.log* ]]; then
 	echo "Wrong filename."
-	#echo "Insert the right one:"
-	#read
-	#file="${REPLY}"
 fi
 
 while [ "$#" -gt 0 ]; do
@@ -95,7 +93,7 @@ while [ "$#" -gt 0 ]; do
 		echo "$before"
 		shift
 		;;
-	-t) #REPAIR (когда используем V вылезает еще и NVDA) + just print, not unique
+	-t) #REPAIR (когда используем V вылезает еще и NVDA)
 		IFS=$'\n'
 		for line in $file
 		do
@@ -104,7 +102,7 @@ while [ "$#" -gt 0 ]; do
           profit
           shift 3
         else
-          grep $2 $file
+          grep $2 $file # заменить на авк
           shift 2
         fi
 		done
