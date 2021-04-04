@@ -64,8 +64,10 @@ graph_pos() {
 }
 
 file="${*: -1}" #file = last arg (probably need to use @ instead if *)
-if [[ $file !=  *.log* ]]; then # if <filename> is not ended with .log, then error appears
-	echo "Wrong filename."
+if [[ $file == *g.gz ]]
+then
+	zcat -f $file >archive.log
+	file="archive.log"
 fi
 
 while [ "$#" -gt 0 ]; do
@@ -100,7 +102,7 @@ while [ "$#" -gt 0 ]; do
           profit "$@" #filtered profit
           shift 3
         else
-          grep -w $2 $file #| sort -k 1M
+          grep -w $2 $file
           shift 2
         fi
 		done
@@ -132,8 +134,7 @@ while [ "$#" -gt 0 ]; do
 	*.log) # if filename is misspelled, "no such func" won't be printed
 		shift
 		;;
-	*log.g*) #TODO
-	  echo "Not working with archives yet"
+	*log.g*)
 		shift
 		;;
 	*) #TODO
@@ -142,3 +143,5 @@ while [ "$#" -gt 0 ]; do
 		;;
 	esac
 done
+
+rm archive.log
