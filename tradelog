@@ -83,17 +83,15 @@ while [ "$#" -gt 0 ]; do
 		echo "Width is $width"
 		shift 2
 		;;
-	-a) #TODO
-		#after="DATETIME - after"
-		echo "$after"
-		shift
+	-a)
+		awk -F ';' -v dateA="$2" '{if (FNR>1 && dateA<$1) {print}}' "$file"
+		shift 2
 		;;
-	-b) #TODO
-		before="DATETIME - before"
-		echo "$before"
-		shift
+	-b)
+	  awk -F ';' -v dateA="$2" '{if (FNR>=1 && dateA>$1) {print}}' "$file"
+		shift 2
 		;;
-	-t) #REPAIR (когда используем V вылезает еще и NVDA)
+	-t) #REPAIR
 		IFS=$'\n'
 		for line in $file
 		do
@@ -102,7 +100,7 @@ while [ "$#" -gt 0 ]; do
           profit "$@" #filtered profit
           shift 3
         else
-          awk /"$2"/ $file # заменить на авк
+          grep -w $2 $file #| sort -k 1M
           shift 2
         fi
 		done
