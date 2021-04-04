@@ -31,52 +31,52 @@ print_help() {
 
 list_tick() {
 	IFS=$'\n'
-	awk -F';' '{print $2}' $file | sort | uniq
+	awk -F';' '{print $2}' $file | sort | uniq #printing the second column in each row
 }
 
-profit() {
+profit() { # $6-quantity $4-price
   if [[ "$1" == "-t" ]]
-  then
-    buy=$(awk /"$2"/ $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc)
-    sell=$(awk /"$2"/ $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc)
-    echo "$sell $buy" | paste -sd+ | bc
-  else
+  then #filtered function
+    buy=$(awk /"$2"/ $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc) #acquiring "buy" value by $6*$4 (filtering lines by "buy" string)
+    sell=$(awk /"$2"/ $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc) #acquiring "sell" value by $6*$4 (filtering lines by "sell" string)
+    echo "$sell $buy" | paste -sd+ | bc #calculating profit
+  else #unfiltered function
     buy=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /buy/ | awk -F';' '{printf "-%.2f\n", $2}' | paste -sd+ | bc)
     sell=$(awk -F'\n' '{print $1}' $file | awk -F';' '{printf "%s;%.2f\n",$3, $6*$4}' | awk /sell/ | awk -F';' '{printf "%.2f\n", $2}' | paste -sd+ | bc)
     echo "$sell $buy" | paste -sd+ | bc
   fi
 }
 
-pos() {
+pos() { #TODO
 	echo "Pos func"
 }
 
-last_price() {
+last_price() { #flipping the file and printing $2(ticker) and $4(price); for one time for each ticker
   sort -r $file | awk -F';' '{printf "%-10s:%8s\n", $2, $4}' | sort -u -k 1,1 | uniq
 }
 
-hist_ord() {
+hist_ord() { #TODO
 	echo "Hist Ord Func"
 }
 
-graph_pos() {
+graph_pos() { #TODO
 	echo "Graph pos func"
 }
 
 file="${*: -1}" #file = last arg
-if [[ $file == *g.gz ]]
+if [[ $file == *g.gz ]] #archive support
 then
 	zcat -f $file >archive.log
 	file="archive.log"
 fi
 
-while [ "$#" -gt 0 ]; do
-	case "$1" in
-	-h)
+while [ "$#" -gt 0 ]; do #main loop
+	case "$1" in #argument checking
+	-h) #help message
 		print_help
 		exit 0
 		;;
-	--help)
+	--help) #help message
 		print_help
 		exit 0
 		;;
@@ -85,33 +85,33 @@ while [ "$#" -gt 0 ]; do
 		echo "Width is $width"
 		shift 2
 		;;
-	-a)
+	-a) #after date
 		awk -F ';' -v dateA="$2" '{if (FNR>1 && dateA<$1) {print}}' "$file"
 		shift 2
 		;;
-	-b)
+	-b) #before date
 	  awk -F ';' -v dateA="$2" '{if (FNR>=1 && dateA>$1) {print}}' "$file"
 		shift 2
 		;;
-	-t) #REPAIR
+	-t) #ticket filter
 		IFS=$'\n'
 		for line in $file
 		do
-		    if [[ "$3" == "profit" ]] # $1=-t $2=TSLA $3=profit
+		    if [[ "$3" == "profit" ]] #$1=-t $2=ticker $3=profit
 		    then
           profit "$@" #filtered profit
           shift 3
         else
-          grep -w $2 $file
+          grep -w $2 $file #just -t output
           shift 2
         fi
 		done
 		;;
-	list-tick)
+	list-tick) #list-tick func call
 		list_tick
 		shift
 		;;
-	profit) # unfiltered profit
+	profit) #unfiltered profit
 	  profit "$@"
 		shift
 		;;
@@ -119,7 +119,7 @@ while [ "$#" -gt 0 ]; do
 		pos
 		shift
 		;;
-	last-price)
+	last-price) #last-price func call
 		last_price
 		shift
 		;;
@@ -134,17 +134,17 @@ while [ "$#" -gt 0 ]; do
 	*.log) #if filename is misspelled, "no such func" won't be printed
 		shift
 		;;
-	*log.g*)
+	*log.g*) #if filename is misspelled, "no such func" won't be printed
 		shift
 		;;
-	*)
+	*) #wrong arguments support
 	  echo "'$1' no such function"
 		shift
 		;;
 	esac
 done
 
-if [[ $file == archive.log ]]
+if [[ $file == archive.log ]] #removing the zcat file
 then
   rm archive.log
 fi
